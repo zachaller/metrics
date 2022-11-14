@@ -1,0 +1,5 @@
+apiVersion: prometheus.metrics.argoproj.io/v1
+kind: MetricQuery
+metadata:
+  name: rollouts-demo
+spec:
