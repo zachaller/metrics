@@ -18,7 +18,7 @@ package prometheus
 
 import (
 	"context"
-
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -48,6 +48,26 @@ type MetricQueryReconciler struct {
 // - https://pkg.go.dev/sigs.k8s.io/controller-runtime@v0.11.0/pkg/reconcile
 func (r *MetricQueryReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	_ = log.FromContext(ctx)
+
+	var metricQuery prometheusv1.MetricQuery
+	err := r.Client.Get(ctx, req.NamespacedName, &metricQuery)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	metricQueryRun := prometheusv1.MetricQueryRun{
+		TypeMeta: metav1.TypeMeta{},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      "test-run",
+			Namespace: "default",
+		},
+		Spec: prometheusv1.MetricQueryRunSpec{},
+		//Status:     prometheusv1.MetricQueryRunStatus{},
+	}
+	err = r.Client.Create(ctx, &metricQueryRun)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
 
 	// TODO(user): your logic here
 

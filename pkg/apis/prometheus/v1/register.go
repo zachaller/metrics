@@ -32,6 +32,11 @@ var AddToScheme = func(scheme *runtime.Scheme) error {
 	scheme.AddKnownTypes(schema.GroupVersion{
 		Group:   "prometheus.metrics.argoproj.io",
 		Version: "v1",
+	}, &MetricQueryRun{}, &MetricQueryRunList{})
+
+	scheme.AddKnownTypes(schema.GroupVersion{
+		Group:   "prometheus.metrics.argoproj.io",
+		Version: "v1",
 	}, &MetricQuery{}, &MetricQueryList{})
 	return nil
 }
