@@ -18,13 +18,13 @@ package prometheus
 
 import (
 	"context"
+	prometheusv1 "github.com/argoproj/metrics/pkg/apis/prometheus/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-
-	prometheusv1 "github.com/argoproj/metrics/pkg/apis/prometheus/v1"
+	"time"
 )
 
 // MetricQueryReconciler reconciles a MetricQuery object
@@ -58,13 +58,29 @@ func (r *MetricQueryReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	metricQueryRun := prometheusv1.MetricQueryRun{
 		TypeMeta: metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "test-run",
-			Namespace: "default",
+			Name:              "test-run",
+			Namespace:         "default",
+			Labels:            map[string]string{"test": "test"},
+			CreationTimestamp: metav1.NewTime(time.Now()),
+		},
+		Spec: prometheusv1.MetricQueryRunSpec{},
+	}
+	err = r.Client.Create(ctx, &metricQueryRun)
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+
+	err = r.Client.Create(ctx, &prometheusv1.MetricQueryRun{
+		TypeMeta: metav1.TypeMeta{},
+		ObjectMeta: metav1.ObjectMeta{
+			Name:              "test-run1",
+			Namespace:         "default",
+			Labels:            map[string]string{"test": "test"},
+			CreationTimestamp: metav1.NewTime(time.Now()),
 		},
 		Spec: prometheusv1.MetricQueryRunSpec{},
 		//Status:     prometheusv1.MetricQueryRunStatus{},
-	}
-	err = r.Client.Create(ctx, &metricQueryRun)
+	})
 	if err != nil {
 		return ctrl.Result{}, err
 	}

@@ -284,6 +284,14 @@ func schema_pkg_apis_prometheus_v1_MetricQueryRunSpec(ref common.ReferenceCallba
 			SchemaProps: spec.SchemaProps{
 				Description: "MetricQueryRunSpec defines the desired state of MetricQueryRun",
 				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"result": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
 			},
 		},
 	}

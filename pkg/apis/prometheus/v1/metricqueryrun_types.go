@@ -49,6 +49,7 @@ type MetricQueryRunList struct {
 
 // MetricQueryRunSpec defines the desired state of MetricQueryRun
 type MetricQueryRunSpec struct {
+	Result string `json:"result,omitempty" protobuf:"bytes,1,opt,name=result"`
 }
 
 var _ resource.Object = &MetricQueryRun{}

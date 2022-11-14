@@ -19,7 +19,9 @@ package main
 import (
 	"k8s.io/klog"
 	"sigs.k8s.io/apiserver-runtime/pkg/builder"
-	"sigs.k8s.io/apiserver-runtime/pkg/experimental/storage/filepath"
+
+	//"sigs.k8s.io/apiserver-runtime/pkg/experimental/storage/filepath"
+	memoryStorage "github.com/argoproj/metrics/pkg/storage"
 
 	// +kubebuilder:scaffold:resource-imports
 	prometheusv1 "github.com/argoproj/metrics/pkg/apis/prometheus/v1"
@@ -30,7 +32,8 @@ func main() {
 		// +kubebuilder:scaffold:resource-register
 		WithOpenAPIDefinitions("metrics", "v0.0.0", prometheusv1.GetOpenAPIDefinitions).
 		WithResource(&prometheusv1.MetricQuery{}).
-		WithResourceAndHandler(&prometheusv1.MetricQueryRun{}, filepath.NewJSONFilepathStorageProvider(&prometheusv1.MetricQueryRun{}, "data")).
+		//WithResourceAndHandler(&prometheusv1.MetricQueryRun{}, filepath.NewJSONFilepathStorageProvider(&prometheusv1.MetricQueryRun{}, "data")).
+		WithResourceAndHandler(&prometheusv1.MetricQueryRun{}, memoryStorage.NewMemoryStorageProvider(&prometheusv1.MetricQueryRun{})).
 		WithLocalDebugExtension().
 		Execute()
 	if err != nil {
