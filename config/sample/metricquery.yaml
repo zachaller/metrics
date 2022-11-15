@@ -4,6 +4,7 @@ metadata:
   name: rollouts-demo
   namespace: default
 spec:
+  address: "http://localhost:9090"
   query: 'container_memory_usage_bytes{pod="alertmanager-main-0"}'
   step: 1m
-  timeLength: 10m
+  timeLength: 15m

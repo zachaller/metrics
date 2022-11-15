@@ -322,6 +322,12 @@ func schema_pkg_apis_prometheus_v1_MetricQuerySpec(ref common.ReferenceCallback)
 							Format: "",
 						},
 					},
+					"address": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
 				},
 			},
 		},

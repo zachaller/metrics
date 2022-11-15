@@ -54,13 +54,16 @@ func (r *MetricQueryReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, err
 	}
 
+	annotations := metricQuery.GetAnnotations()
+	delete(annotations, "kubectl.kubernetes.io/last-applied-configuration")
+
 	metricQueryRun := prometheusv1.MetricQueryRun{
 		TypeMeta: metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        metricQuery.Name,
 			Namespace:   metricQuery.Namespace,
 			Labels:      metricQuery.Labels,
-			Annotations: metricQuery.Annotations,
+			Annotations: annotations,
 			OwnerReferences: []metav1.OwnerReference{{
 				APIVersion: metricQuery.APIVersion,
 				Kind:       metricQuery.Kind,

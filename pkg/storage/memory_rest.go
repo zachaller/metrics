@@ -146,7 +146,7 @@ func (f *memoryREST) Get(
 		return nil, err
 	}
 
-	pClient, err := prometheus.NewPrometheus("http://localhost:9090")
+	pClient, err := prometheus.NewPrometheus(v.Spec.Address)
 	if err != nil {
 		return nil, err
 	}

@@ -54,6 +54,7 @@ type MetricQuerySpec struct {
 	Query      string `json:"query,omitempty" protobuf:"bytes,1,opt,name=query"`
 	TimeLength string `json:"timeLength,omitempty" protobuf:"bytes,2,opt,name=timeLength"`
 	Step       string `json:"step,omitempty" protobuf:"bytes,3,opt,name=step"`
+	Address    string `json:"address,omitempty" protobuf:"bytes,4,opt,name=address"`
 }
 
 var _ resource.Object = &MetricQuery{}
