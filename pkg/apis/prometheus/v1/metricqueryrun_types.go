@@ -93,3 +93,7 @@ var _ resource.ObjectList = &MetricQueryRunList{}
 func (in *MetricQueryRunList) GetListMeta() *metav1.ListMeta {
 	return &in.ListMeta
 }
+
+//func (in *MetricQueryRun) GetObjectKind() schema.ObjectKind {
+//	return in.GetObjectKind()
+//}

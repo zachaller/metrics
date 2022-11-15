@@ -85,6 +85,12 @@ func (r *MetricQueryReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, err
 	}
 
+	//metricQueryRun.Spec.Result = "test"
+	//err = r.Client.Update(ctx, &metricQuery)
+	//if err != nil {
+	//	return ctrl.Result{}, err
+	//}
+
 	// TODO(user): your logic here
 
 	return ctrl.Result{}, nil

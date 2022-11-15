@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 	"path/filepath"
 	"reflect"
 	"strings"
 	"sync"
 	"time"
 
+	prometheusv1 "github.com/argoproj/metrics/pkg/apis/prometheus/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metainternalversion "k8s.io/apimachinery/pkg/apis/meta/internalversion"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -41,10 +41,6 @@ func NewMemoryREST(
 	newListFunc func() runtime.Object,
 ) rest.Storage {
 	objRoot := filepath.Join(groupResource.Group, groupResource.Resource)
-	if err := ensureDir(objRoot); err != nil {
-		panic(fmt.Sprintf("unable to write data dir: %s", err))
-	}
-
 	// file REST
 	rest := &memoryREST{
 		TableConvertor: rest.NewDefaultTableConvertor(groupResource),
@@ -121,10 +117,14 @@ func (f *memoryREST) Get(
 			Message:  fmt.Sprintf("object %s not found", name),
 			Reason:   "",
 			Details:  nil,
-			Code:     0,
+			Code:     404,
 		}, nil
 	}
-	return f.storage[key].obj, nil
+
+	mqr := &prometheusv1.MetricQueryRun{}
+	mqr = f.storage[key].obj.(*prometheusv1.MetricQueryRun)
+	return mqr, nil
+	//return f.storage[key].obj, nil
 }
 
 func (f *memoryREST) List(
@@ -138,7 +138,6 @@ func (f *memoryREST) List(
 	}
 
 	namespace := genericapirequest.NamespaceValue(ctx)
-
 	for key, value := range f.storage {
 		if f.isNamespaced {
 			if !strings.HasPrefix(key, namespace) {
@@ -163,12 +162,15 @@ func (f *memoryREST) Create(
 		}
 	}
 
+	//typedObj, _ := obj.(prometheusv1.MetricQueryRun)
+	//fmt.Println(typedObj.Name)
+
 	accessor, err := meta.Accessor(obj)
 	if err != nil {
 		return nil, err
 	}
 	accessor.SetCreationTimestamp(metav1.Now())
-	filename := f.objectMemoryKey(ctx, accessor.GetName())
+	key := f.objectMemoryKey(ctx, accessor.GetName())
 
 	if f.isNamespaced {
 		// ensures namespace dir
@@ -179,12 +181,12 @@ func (f *memoryREST) Create(
 	}
 
 	f.muStorage.RLock()
-	_, found := f.storage[filename]
+	_, found := f.storage[key]
 	f.muStorage.RUnlock()
 
 	if !found {
 		f.muStorage.Lock()
-		f.storage[filename] = memoryStorage{
+		f.storage[key] = memoryStorage{
 			obj:         obj,
 			createdTime: time.Now(),
 		}
@@ -192,7 +194,7 @@ func (f *memoryREST) Create(
 	}
 
 	f.muStorage.RLock()
-	if _, ok := f.storage[filename]; !ok {
+	if _, ok := f.storage[key]; !ok {
 		return nil, ErrObjectNotExists
 	}
 	f.muStorage.RUnlock()
@@ -294,7 +296,7 @@ func (f *memoryREST) Delete(
 			Message:  fmt.Sprintf("object %s not found", name),
 			Reason:   "",
 			Details:  nil,
-			Code:     0,
+			Code:     404,
 		}, false, nil
 	}
 
@@ -330,13 +332,26 @@ func (f *memoryREST) DeleteCollection(
 	if err != nil {
 		return nil, err
 	}
-	dirname := f.objectNamespace(ctx)
-	if err := visitDir(dirname, f.newFunc, f.codec, func(path string, obj runtime.Object) {
-		_ = os.Remove(path)
-		appendItem(v, obj)
-	}); err != nil {
-		return nil, fmt.Errorf("failed walking filepath %v", dirname)
+
+	//dirname := f.objectNamespace(ctx)
+	//if err := visitDir(dirname, f.newFunc, f.codec, func(path string, obj runtime.Object) {
+	//	_ = os.Remove(path)
+	//	appendItem(v, obj)
+	//}); err != nil {
+	//	return nil, fmt.Errorf("failed walking filepath %v", dirname)
+	//}
+
+	namespace := genericapirequest.NamespaceValue(ctx)
+	for key, value := range f.storage {
+		if f.isNamespaced {
+			if !strings.HasPrefix(key, namespace) {
+				continue
+			}
+		}
+		appendItem(v, value.obj)
+		delete(f.storage, key)
 	}
+
 	return newListObj, nil
 }
 
@@ -356,51 +371,6 @@ func (f *memoryREST) objectNamespace(ctx context.Context) string {
 		return ns
 	}
 	return ""
-}
-
-func read(decoder runtime.Decoder, path string, newFunc func() runtime.Object) (runtime.Object, error) {
-	content, err := os.ReadFile(filepath.Clean(path))
-	if err != nil {
-		return nil, err
-	}
-	newObj := newFunc()
-	decodedObj, _, err := decoder.Decode(content, nil, newObj)
-	if err != nil {
-		return nil, err
-	}
-	return decodedObj, nil
-}
-
-func exists(filepath string) bool {
-	_, err := os.Stat(filepath)
-	return err == nil
-}
-
-func ensureDir(dirname string) error {
-	if !exists(dirname) {
-		return os.MkdirAll(dirname, 0700)
-	}
-	return nil
-}
-
-func visitDir(dirname string, newFunc func() runtime.Object, codec runtime.Decoder, visitFunc func(string, runtime.Object)) error {
-	return filepath.Walk(dirname, func(path string, info os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-		if info.IsDir() {
-			return nil
-		}
-		if !strings.HasSuffix(info.Name(), ".json") {
-			return nil
-		}
-		newObj, err := read(codec, path, newFunc)
-		if err != nil {
-			return err
-		}
-		visitFunc(path, newObj)
-		return nil
-	})
 }
 
 func appendItem(v reflect.Value, obj runtime.Object) {
