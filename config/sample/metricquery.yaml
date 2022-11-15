@@ -4,3 +4,6 @@ metadata:
   name: rollouts-demo
   namespace: default
 spec:
+  query: 'container_memory_usage_bytes{pod="alertmanager-main-0"}'
+  step: 1m
+  timeLength: 10m

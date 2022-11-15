@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/argoproj/metrics/pkg/kubeclient"
+	"github.com/argoproj/metrics/pkg/metricproviders/prometheus"
+	"k8s.io/apimachinery/pkg/util/json"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -41,7 +44,7 @@ func NewMemoryREST(
 	newListFunc func() runtime.Object,
 ) rest.Storage {
 	objRoot := filepath.Join(groupResource.Group, groupResource.Resource)
-	// file REST
+
 	rest := &memoryREST{
 		TableConvertor: rest.NewDefaultTableConvertor(groupResource),
 		codec:          codec,
@@ -106,9 +109,8 @@ func (f *memoryREST) Get(
 
 	key := f.objectMemoryKey(ctx, name)
 	f.muStorage.RLock()
-	defer f.muStorage.RUnlock()
 
-	_, found := f.storage[key]
+	obj, found := f.storage[key]
 	if !found {
 		return &metav1.Status{
 			TypeMeta: metav1.TypeMeta{},
@@ -120,10 +122,52 @@ func (f *memoryREST) Get(
 			Code:     404,
 		}, nil
 	}
+	mqr := obj.obj.(*prometheusv1.MetricQueryRun).DeepCopy()
+	f.muStorage.RUnlock()
 
-	mqr := &prometheusv1.MetricQueryRun{}
-	mqr = f.storage[key].obj.(*prometheusv1.MetricQueryRun)
-	mqr.Spec.Result = "[2,3,5,2,3,6]"
+	_, dynamicClient, err := kubeclient.NewKubeClient()
+	if err != nil {
+		return nil, err
+	}
+
+	v := prometheusv1.MetricQuery{}
+	un, err := dynamicClient.Resource(v.GetGroupVersionResource()).Namespace(mqr.Namespace).Get(ctx, mqr.ObjectMeta.OwnerReferences[0].Name, metav1.GetOptions{})
+	if err != nil {
+		return nil, err
+	}
+
+	jsonBytes, err := un.MarshalJSON()
+	if err != nil {
+		return nil, err
+	}
+
+	err = json.Unmarshal(jsonBytes, &v)
+	if err != nil {
+		return nil, err
+	}
+
+	pClient, err := prometheus.NewPrometheus("http://localhost:9090")
+	if err != nil {
+		return nil, err
+	}
+
+	timeLength, err := time.ParseDuration(v.Spec.TimeLength)
+	if err != nil {
+		return nil, err
+	}
+
+	step, err := time.ParseDuration(v.Spec.Step)
+	if err != nil {
+		return nil, err
+	}
+
+	res, err := pClient.Query(ctx, v.Spec.Query, time.Now().Add(-timeLength), time.Now(), step)
+	if err != nil {
+		return nil, err
+	}
+
+	mqr.Spec.Result = res
+
 	return mqr, nil
 }
 
@@ -138,6 +182,7 @@ func (f *memoryREST) List(
 	}
 
 	namespace := genericapirequest.NamespaceValue(ctx)
+	f.muStorage.RLock()
 	for key, value := range f.storage {
 		if f.isNamespaced {
 			if !strings.HasPrefix(key, namespace) {
@@ -146,6 +191,7 @@ func (f *memoryREST) List(
 		}
 		appendItem(v, value.obj)
 	}
+	f.muStorage.RUnlock()
 
 	return newListObj, nil
 }

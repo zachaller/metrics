@@ -28,14 +28,15 @@ import (
 )
 
 func main() {
-	err := builder.APIServer.
+	cmd, err := builder.APIServer.
 		// +kubebuilder:scaffold:resource-register
 		WithOpenAPIDefinitions("metrics", "v0.0.0", prometheusv1.GetOpenAPIDefinitions).
 		WithResource(&prometheusv1.MetricQuery{}).
 		//WithResourceAndHandler(&prometheusv1.MetricQueryRun{}, filepath.NewJSONFilepathStorageProvider(&prometheusv1.MetricQueryRun{}, "data")).
 		WithResourceAndHandler(&prometheusv1.MetricQueryRun{}, memoryStorage.NewMemoryStorageProvider(&prometheusv1.MetricQueryRun{})).
 		WithLocalDebugExtension().
-		Execute()
+		Build()
+	cmd.Execute()
 	if err != nil {
 		klog.Fatal(err)
 	}

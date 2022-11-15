@@ -303,6 +303,26 @@ func schema_pkg_apis_prometheus_v1_MetricQuerySpec(ref common.ReferenceCallback)
 			SchemaProps: spec.SchemaProps{
 				Description: "MetricQuerySpec defines the desired state of MetricQuery",
 				Type:        []string{"object"},
+				Properties: map[string]spec.Schema{
+					"query": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"timeLength": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"step": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
 			},
 		},
 	}

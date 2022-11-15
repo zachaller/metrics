@@ -24,7 +24,6 @@ import (
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/log"
-	"time"
 )
 
 // MetricQueryReconciler reconciles a MetricQuery object
@@ -58,10 +57,10 @@ func (r *MetricQueryReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	metricQueryRun := prometheusv1.MetricQueryRun{
 		TypeMeta: metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:              "test-run",
-			Namespace:         "default",
-			Labels:            map[string]string{"test": "test"},
-			CreationTimestamp: metav1.NewTime(time.Now()),
+			Name:        metricQuery.Name,
+			Namespace:   metricQuery.Namespace,
+			Labels:      metricQuery.Labels,
+			Annotations: metricQuery.Annotations,
 			OwnerReferences: []metav1.OwnerReference{{
 				APIVersion: metricQuery.APIVersion,
 				Kind:       metricQuery.Kind,
@@ -75,33 +74,6 @@ func (r *MetricQueryReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
-
-	err = r.Client.Create(ctx, &prometheusv1.MetricQueryRun{
-		TypeMeta: metav1.TypeMeta{},
-		ObjectMeta: metav1.ObjectMeta{
-			Name:              "test-run1",
-			Namespace:         "default",
-			Labels:            map[string]string{"test": "test"},
-			CreationTimestamp: metav1.NewTime(time.Now()),
-			OwnerReferences: []metav1.OwnerReference{{
-				APIVersion: metricQuery.APIVersion,
-				Kind:       metricQuery.Kind,
-				Name:       metricQuery.Name,
-				UID:        metricQuery.UID,
-			}},
-		},
-		Spec: prometheusv1.MetricQueryRunSpec{},
-		//Status:     prometheusv1.MetricQueryRunStatus{},
-	})
-	if err != nil {
-		return ctrl.Result{}, err
-	}
-
-	//metricQueryRun.Spec.Result = "test"
-	//err = r.Client.Update(ctx, &metricQuery)
-	//if err != nil {
-	//	return ctrl.Result{}, err
-	//}
 
 	// TODO(user): your logic here
 

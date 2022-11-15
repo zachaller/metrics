@@ -1,0 +1,8 @@
+apiVersion: prometheus.metrics.argoproj.io/v1
+kind: MetricQueryRun
+metadata:
+  creationTimestamp: "2022-11-14T22:16:14Z"
+  labels:
+    test: test
+  name: test-run-3
+spec: {}
