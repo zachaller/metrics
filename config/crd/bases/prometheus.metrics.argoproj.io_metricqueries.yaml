@@ -34,6 +34,15 @@ spec:
             type: object
           spec:
             description: MetricQuerySpec defines the desired state of MetricQuery
+            properties:
+              address:
+                type: string
+              query:
+                type: string
+              step:
+                type: string
+              timeLength:
+                type: string
             type: object
           status:
             description: MetricQueryStatus defines the observed state of MetricQuery

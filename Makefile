@@ -84,8 +84,8 @@ ifndef ignore-not-found
 endif
 
 .PHONY: gen-openapi
-gen-openapi:
-	openapi-gen --go-header-file hack/boilerplate.go.txt \
+gen-openapi: openapi-gen
+	$(OPENAPI_GEN) --go-header-file hack/boilerplate.go.txt \
 		--input-dirs github.com/argoproj/metrics/pkg/apis/prometheus/v1,k8s.io/apimachinery/pkg/apis/meta/v1,k8s.io/apimachinery/pkg/version,k8s.io/apimachinery/pkg/runtime \
 		--output-package pkg/apis/prometheus/v1 \
 		--output-base $(shell pwd) \
@@ -116,7 +116,12 @@ controller-gen: ## Download controller-gen locally if necessary.
 KUSTOMIZE = $(shell pwd)/bin/kustomize
 .PHONY: kustomize
 kustomize: ## Download kustomize locally if necessary.
-	$(call go-get-tool,$(KUSTOMIZE),sigs.k8s.io/kustomize/kustomize/v3@v3.8.7)
+	$(call go-get-tool,$(KUSTOMIZE),sigs.k8s.io/kustomize/kustomize/v4@v4.5.5)
+
+OPENAPI_GEN = $(shell pwd)/bin/openapi-gen
+.PHONY: openapi-gen
+openapi-gen:
+	$(call go-get-tool,$(OPENAPI_GEN),k8s.io/kube-openapi/cmd/openapi-gen@a28e98eb7c70822b5bb7d633ac1760c6442632ff)
 
 ENVTEST = $(shell pwd)/bin/setup-envtest
 .PHONY: envtest
@@ -130,6 +135,5 @@ define go-get-tool
 set -e ;\
 echo "Downloading $(2)" ;\
 GOBIN=$(PROJECT_DIR)/bin go install $(2) ;\
-rm -rf $$TMP_DIR ;\
 }
 endef

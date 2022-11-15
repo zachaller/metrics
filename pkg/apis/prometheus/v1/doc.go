@@ -1,4 +1,3 @@
-
 /*
 Copyright 2022.
 
@@ -25,4 +24,3 @@ limitations under the License.
 // +k8s:defaulter-gen=TypeMeta
 // +groupName=prometheus.metrics.argoproj.io
 package v1 // import "github.com/argoproj/metrics/pkg/apis/prometheus/v1"
-
