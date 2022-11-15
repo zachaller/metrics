@@ -123,8 +123,8 @@ func (f *memoryREST) Get(
 
 	mqr := &prometheusv1.MetricQueryRun{}
 	mqr = f.storage[key].obj.(*prometheusv1.MetricQueryRun)
+	mqr.Spec.Result = "[2,3,5,2,3,6]"
 	return mqr, nil
-	//return f.storage[key].obj, nil
 }
 
 func (f *memoryREST) List(
@@ -162,9 +162,6 @@ func (f *memoryREST) Create(
 		}
 	}
 
-	//typedObj, _ := obj.(prometheusv1.MetricQueryRun)
-	//fmt.Println(typedObj.Name)
-
 	accessor, err := meta.Accessor(obj)
 	if err != nil {
 		return nil, err
@@ -180,24 +177,12 @@ func (f *memoryREST) Create(
 		}
 	}
 
-	f.muStorage.RLock()
-	_, found := f.storage[key]
-	f.muStorage.RUnlock()
-
-	if !found {
-		f.muStorage.Lock()
-		f.storage[key] = memoryStorage{
-			obj:         obj,
-			createdTime: time.Now(),
-		}
-		f.muStorage.Unlock()
+	f.muStorage.Lock()
+	f.storage[key] = memoryStorage{
+		obj:         obj,
+		createdTime: time.Now(),
 	}
-
-	f.muStorage.RLock()
-	if _, ok := f.storage[key]; !ok {
-		return nil, ErrObjectNotExists
-	}
-	f.muStorage.RUnlock()
+	f.muStorage.Unlock()
 
 	f.notifyWatchers(watch.Event{
 		Type:   watch.Added,

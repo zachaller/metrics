@@ -62,6 +62,12 @@ func (r *MetricQueryReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 			Namespace:         "default",
 			Labels:            map[string]string{"test": "test"},
 			CreationTimestamp: metav1.NewTime(time.Now()),
+			OwnerReferences: []metav1.OwnerReference{{
+				APIVersion: metricQuery.APIVersion,
+				Kind:       metricQuery.Kind,
+				Name:       metricQuery.Name,
+				UID:        metricQuery.UID,
+			}},
 		},
 		Spec: prometheusv1.MetricQueryRunSpec{},
 	}
@@ -77,6 +83,12 @@ func (r *MetricQueryReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 			Namespace:         "default",
 			Labels:            map[string]string{"test": "test"},
 			CreationTimestamp: metav1.NewTime(time.Now()),
+			OwnerReferences: []metav1.OwnerReference{{
+				APIVersion: metricQuery.APIVersion,
+				Kind:       metricQuery.Kind,
+				Name:       metricQuery.Name,
+				UID:        metricQuery.UID,
+			}},
 		},
 		Spec: prometheusv1.MetricQueryRunSpec{},
 		//Status:     prometheusv1.MetricQueryRunStatus{},

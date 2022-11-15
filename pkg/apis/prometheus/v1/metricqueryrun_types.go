@@ -60,7 +60,7 @@ func (in *MetricQueryRun) GetObjectMeta() *metav1.ObjectMeta {
 }
 
 func (in *MetricQueryRun) NamespaceScoped() bool {
-	return false
+	return true
 }
 
 func (in *MetricQueryRun) New() runtime.Object {
