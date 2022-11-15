@@ -2,26 +2,26 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: metric-apiserver-controller
+  name: argoproj-metrics-poc-controller
   namespace: default
   labels:
-    api: metric-apiserver
+    api: argoproj-metrics-poc
     controller: "true"
 spec:
   selector:
     matchLabels:
-      api: metric-apiserver
+      api: argoproj-metrics-poc
       controller: "true"
   replicas: 1
   template:
     metadata:
       labels:
-        api: metric-apiserver
+        api: argoproj-metrics-poc
         controller: "true"
     spec:
       containers:
       - name: controller
-        image: metric
+        image: argoproj-metrics-poc
         command:
         - "./controller-manager"
         args:
@@ -35,4 +35,4 @@ spec:
       volumes:
       - name: apiserver-certs
         secret:
-          secretName: metric-apiserver
+          secretName: argoproj-metrics-poc

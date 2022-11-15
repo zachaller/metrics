@@ -2,7 +2,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: metric-apiserver-apiserver-auth-reader
+  name: argoproj-metrics-poc-apiserver-auth-reader
 rules:
   - apiGroups:
       - ""
@@ -17,12 +17,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: metric-apiserver-apiserver-auth-reader
+  name: argoproj-metrics-poc-apiserver-auth-reader
   namespace: kube-system
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: metric-apiserver-apiserver-auth-reader
+  name: argoproj-metrics-poc-apiserver-auth-reader
 subjects:
   - kind: ServiceAccount
     namespace: default
@@ -31,7 +31,7 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: metric-apiserver-apiserver-auth-delegator
+  name: argoproj-metrics-poc-apiserver-auth-delegator
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
@@ -44,7 +44,7 @@ subjects:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: metric-apiserver-controller
+  name: argoproj-metrics-poc-controller
   namespace: default
 rules:
   - apiGroups:
@@ -78,12 +78,12 @@ rules:
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
-  name: metric-apiserver-controller
+  name: argoproj-metrics-poc-controller
   namespace: default
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
-  name: metric-apiserver-controller
+  name: argoproj-metrics-poc-controller
 subjects:
   - kind: ServiceAccount
     namespace: default
