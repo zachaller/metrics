@@ -37,8 +37,15 @@ spec:
             properties:
               address:
                 type: string
-              query:
-                type: string
+              queries:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    query:
+                      type: string
+                  type: object
+                type: array
               step:
                 type: string
               timeLength:

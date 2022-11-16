@@ -35,8 +35,15 @@ spec:
           spec:
             description: MetricQueryRunSpec defines the desired state of MetricQueryRun
             properties:
-              result:
-                type: string
+              results:
+                items:
+                  properties:
+                    name:
+                      type: string
+                    result:
+                      type: string
+                  type: object
+                type: array
             type: object
         type: object
     served: true
