@@ -7,6 +7,7 @@ import (
 	"github.com/argoproj/metrics/pkg/kubeclient"
 	"github.com/argoproj/metrics/pkg/metricproviders/prometheus"
 	"k8s.io/apimachinery/pkg/util/json"
+	"k8s.io/apimachinery/pkg/util/uuid"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -225,6 +226,7 @@ func (f *memoryREST) Create(
 		return nil, err
 	}
 	accessor.SetCreationTimestamp(metav1.Now())
+	accessor.SetUID(uuid.NewUUID())
 	key := f.objectMemoryKey(ctx, accessor.GetName())
 
 	if f.isNamespaced {
