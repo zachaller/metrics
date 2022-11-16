@@ -37,6 +37,8 @@ func GetOpenAPIDefinitions(ref common.ReferenceCallback) map[string]common.OpenA
 		"github.com/argoproj/metrics/pkg/apis/prometheus/v1.MetricQueryRunSpec": schema_pkg_apis_prometheus_v1_MetricQueryRunSpec(ref),
 		"github.com/argoproj/metrics/pkg/apis/prometheus/v1.MetricQuerySpec":    schema_pkg_apis_prometheus_v1_MetricQuerySpec(ref),
 		"github.com/argoproj/metrics/pkg/apis/prometheus/v1.MetricQueryStatus":  schema_pkg_apis_prometheus_v1_MetricQueryStatus(ref),
+		"github.com/argoproj/metrics/pkg/apis/prometheus/v1.Query":              schema_pkg_apis_prometheus_v1_Query(ref),
+		"github.com/argoproj/metrics/pkg/apis/prometheus/v1.Result":             schema_pkg_apis_prometheus_v1_Result(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroup":                         schema_pkg_apis_meta_v1_APIGroup(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIGroupList":                     schema_pkg_apis_meta_v1_APIGroupList(ref),
 		"k8s.io/apimachinery/pkg/apis/meta/v1.APIResource":                      schema_pkg_apis_meta_v1_APIResource(ref),
@@ -285,15 +287,24 @@ func schema_pkg_apis_prometheus_v1_MetricQueryRunSpec(ref common.ReferenceCallba
 				Description: "MetricQueryRunSpec defines the desired state of MetricQueryRun",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"result": {
+					"results": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/argoproj/metrics/pkg/apis/prometheus/v1.Result"),
+									},
+								},
+							},
 						},
 					},
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/argoproj/metrics/pkg/apis/prometheus/v1.Result"},
 	}
 }
 
@@ -304,10 +315,17 @@ func schema_pkg_apis_prometheus_v1_MetricQuerySpec(ref common.ReferenceCallback)
 				Description: "MetricQuerySpec defines the desired state of MetricQuery",
 				Type:        []string{"object"},
 				Properties: map[string]spec.Schema{
-					"query": {
+					"queries": {
 						SchemaProps: spec.SchemaProps{
-							Type:   []string{"string"},
-							Format: "",
+							Type: []string{"array"},
+							Items: &spec.SchemaOrArray{
+								Schema: &spec.Schema{
+									SchemaProps: spec.SchemaProps{
+										Default: map[string]interface{}{},
+										Ref:     ref("github.com/argoproj/metrics/pkg/apis/prometheus/v1.Query"),
+									},
+								},
+							},
 						},
 					},
 					"timeLength": {
@@ -331,6 +349,8 @@ func schema_pkg_apis_prometheus_v1_MetricQuerySpec(ref common.ReferenceCallback)
 				},
 			},
 		},
+		Dependencies: []string{
+			"github.com/argoproj/metrics/pkg/apis/prometheus/v1.Query"},
 	}
 }
 
@@ -340,6 +360,54 @@ func schema_pkg_apis_prometheus_v1_MetricQueryStatus(ref common.ReferenceCallbac
 			SchemaProps: spec.SchemaProps{
 				Description: "MetricQueryStatus defines the observed state of MetricQuery",
 				Type:        []string{"object"},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_prometheus_v1_Query(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"query": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func schema_pkg_apis_prometheus_v1_Result(ref common.ReferenceCallback) common.OpenAPIDefinition {
+	return common.OpenAPIDefinition{
+		Schema: spec.Schema{
+			SchemaProps: spec.SchemaProps{
+				Type: []string{"object"},
+				Properties: map[string]spec.Schema{
+					"name": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+					"result": {
+						SchemaProps: spec.SchemaProps{
+							Type:   []string{"string"},
+							Format: "",
+						},
+					},
+				},
 			},
 		},
 	}

@@ -4,7 +4,10 @@ metadata:
   name: rollouts-demo
   namespace: default
 spec:
+  #address: "http://prometheus-k8s.monitoring:9090"
   address: "http://localhost:9090"
-  query: 'container_memory_usage_bytes{pod="alertmanager-main-0"}'
+  queries:
+    - name: "container_memory_usage_bytes"
+      query: 'container_memory_usage_bytes{pod="alertmanager-main-0"}'
   step: 1m
   timeLength: 15m

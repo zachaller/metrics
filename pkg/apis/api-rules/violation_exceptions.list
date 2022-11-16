@@ -1,3 +1,5 @@
+API rule violation: list_type_missing,github.com/argoproj/metrics/pkg/apis/prometheus/v1,MetricQueryRunSpec,Results
+API rule violation: list_type_missing,github.com/argoproj/metrics/pkg/apis/prometheus/v1,MetricQuerySpec,Queries
 API rule violation: list_type_missing,k8s.io/apimachinery/pkg/apis/meta/v1,APIGroup,ServerAddressByClientCIDRs
 API rule violation: list_type_missing,k8s.io/apimachinery/pkg/apis/meta/v1,APIGroup,Versions
 API rule violation: list_type_missing,k8s.io/apimachinery/pkg/apis/meta/v1,APIGroupList,Groups

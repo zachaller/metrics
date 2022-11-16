@@ -13,8 +13,8 @@ RUN make build
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 FROM gcr.io/distroless/static:nonroot
 WORKDIR /
-COPY --from=builder /workspace/bin/controller-manager .
-COPY --from=builder /workspace/bin/apiserver .
+COPY --from=builder /workspace/bin/controller-manager /controller-manager
+COPY --from=builder /workspace/bin/apiserver /apiserver
 USER 65532:65532
 
 #ENTRYPOINT ["/manager"]

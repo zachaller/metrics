@@ -161,12 +161,24 @@ func (f *memoryREST) Get(
 		return nil, err
 	}
 
-	res, err := pClient.Query(ctx, v.Spec.Query, time.Now().Add(-timeLength), time.Now(), step)
-	if err != nil {
-		return nil, err
+	for _, query := range v.Spec.Queries {
+		res, err := pClient.Query(ctx, query.Query, time.Now().Add(-timeLength), time.Now(), step)
+		if err != nil {
+			return nil, err
+		}
+
+		mqr.Spec.Results = append(mqr.Spec.Results, prometheusv1.Result{
+			Name:   query.Name,
+			Result: res,
+		})
 	}
 
-	mqr.Spec.Result = res
+	//res, err := pClient.Query(ctx, v.Spec.Query, time.Now().Add(-timeLength), time.Now(), step)
+	//if err != nil {
+	//	return nil, err
+	//}
+
+	//mqr.Spec.Result = res
 
 	return mqr, nil
 }

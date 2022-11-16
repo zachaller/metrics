@@ -63,8 +63,8 @@ test: manifests generate fmt vet envtest ## Run tests.
 
 .PHONY: build
 build: generate fmt vet ## Build manager binary.
-	go build -o bin/controller-manager cmd/manager/main.go
-	go build -o bin/apiserver cmd/apiserver/main.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/controller-manager cmd/manager/main.go
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o bin/apiserver cmd/apiserver/main.go
 
 .PHONY: run
 run: manifests generate fmt vet ## Run a controller from your host.
@@ -72,7 +72,7 @@ run: manifests generate fmt vet ## Run a controller from your host.
 
 .PHONY: docker-build
 docker-build: test ## Build docker image with the manager.
-	docker build -t ${IMG} .
+	docker build --platform linux/amd64 -t ${IMG} .
 
 .PHONY: docker-push
 docker-push: ## Push docker image with the manager.

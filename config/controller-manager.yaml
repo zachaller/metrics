@@ -21,7 +21,7 @@ spec:
     spec:
       containers:
       - name: controller
-        image: argoproj-metrics-poc
+        image: zachaller/argoproj-metrics-poc
         command:
         - "./controller-manager"
         args:
