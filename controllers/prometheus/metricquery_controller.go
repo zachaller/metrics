@@ -56,7 +56,7 @@ func (r *MetricQueryReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 
 	var metricQueryRun prometheusv1.MetricQueryRun
 	r.Client.Get(ctx, req.NamespacedName, &metricQueryRun) // ignore error because we want to create it if it doesn't exist
-	if metricQueryRun.Name != "" {
+	if metricQueryRun.Name == metricQuery.Name {
 		return ctrl.Result{}, err
 	}
 
