@@ -65,8 +65,6 @@ type memoryREST struct {
 	objRootPath  string
 	isNamespaced bool
 
-	rest.StandardStorage
-
 	muWatchers sync.RWMutex
 	watchers   map[int]*jsonWatch
 
