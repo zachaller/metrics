@@ -65,6 +65,8 @@ type memoryREST struct {
 	objRootPath  string
 	isNamespaced bool
 
+	rest.StandardStorage
+
 	muWatchers sync.RWMutex
 	watchers   map[int]*jsonWatch
 
@@ -173,13 +175,6 @@ func (f *memoryREST) Get(
 			Result: res,
 		})
 	}
-
-	//res, err := pClient.Query(ctx, v.Spec.Query, time.Now().Add(-timeLength), time.Now(), step)
-	//if err != nil {
-	//	return nil, err
-	//}
-
-	//mqr.Spec.Result = res
 
 	return mqr, nil
 }
@@ -378,13 +373,9 @@ func (f *memoryREST) DeleteCollection(
 		return nil, err
 	}
 
-	//dirname := f.objectNamespace(ctx)
-	//if err := visitDir(dirname, f.newFunc, f.codec, func(path string, obj runtime.Object) {
-	//	_ = os.Remove(path)
-	//	appendItem(v, obj)
-	//}); err != nil {
-	//	return nil, fmt.Errorf("failed walking filepath %v", dirname)
-	//}
+	if !listOptions.FieldSelector.Empty() || !listOptions.LabelSelector.Empty() {
+		return nil, fmt.Errorf("field and label selectors are not supported")
+	}
 
 	namespace := genericapirequest.NamespaceValue(ctx)
 	for key, value := range f.storage {
@@ -393,6 +384,19 @@ func (f *memoryREST) DeleteCollection(
 				continue
 			}
 		}
+		//TODO: implment listOptions filtering
+		//mqr := f.storage[key].obj.(*prometheusv1.MetricQueryRun).DeepCopy()
+		//if listOptions.LabelSelector.Matches(labels.Set(mqr.Labels)) {
+		//	appendItem(v, value.obj)
+		//	delete(f.storage, key)
+		//}
+
+		//if listOptions.FieldSelector.Matches(fields.Set()) {
+		//	appendItem(v, value.obj)
+		//	delete(f.storage, key)
+		//}
+
+		//This removes everything in a namespace should be removed when listOptions filtering is implemented
 		appendItem(v, value.obj)
 		delete(f.storage, key)
 	}
