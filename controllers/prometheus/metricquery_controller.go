@@ -54,10 +54,16 @@ func (r *MetricQueryReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 		return ctrl.Result{}, err
 	}
 
+	var metricQueryRun prometheusv1.MetricQueryRun
+	r.Client.Get(ctx, req.NamespacedName, &metricQueryRun) // ignore error because we want to create it if it doesn't exist
+	if metricQueryRun.Name != "" {
+		return ctrl.Result{}, err
+	}
+
 	annotations := metricQuery.GetAnnotations()
 	delete(annotations, "kubectl.kubernetes.io/last-applied-configuration")
 
-	metricQueryRun := prometheusv1.MetricQueryRun{
+	metricQueryRun = prometheusv1.MetricQueryRun{
 		TypeMeta: metav1.TypeMeta{},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:        metricQuery.Name,
